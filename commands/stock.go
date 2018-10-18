@@ -10,7 +10,7 @@ import (
 	iex "github.com/jonwho/go-iex"
 )
 
-func Stock(s *dg.Session, m *dg.MessageCreate) {
+func stock(s *dg.Session, m *dg.MessageCreate) {
 	slice := strings.Split(m.Content, " ")
 	ticker := slice[1]
 	iexClient := iex.NewClient()
