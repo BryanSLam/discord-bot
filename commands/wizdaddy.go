@@ -11,7 +11,7 @@ import (
 	dg "github.com/bwmarrin/discordgo"
 )
 
-func Wizdaddy(s *dg.Session, m *dg.MessageCreate) {
+func wizdaddy(s *dg.Session, m *dg.MessageCreate) {
 	logger := util.Logger{Session: s, ChannelID: config.GetConfig().BotLogChannelID}
 	resp, err := http.Get(config.GetConfig().WizdaddyURL)
 

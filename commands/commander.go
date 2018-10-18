@@ -2,7 +2,6 @@ package commands
 
 import (
 	"fmt"
-	"regexp"
 
 	"github.com/BryanSLam/discord-bot/config"
 	"github.com/BryanSLam/discord-bot/util"
@@ -12,12 +11,6 @@ import (
 type work func(s *dg.Session, m *dg.MessageCreate)
 
 func Commander() func(s *dg.Session, m *dg.MessageCreate) {
-	commandRegex := regexp.MustCompile(`![a-zA-Z]+[ a-zA-Z\"\.]*[ 0-9/]*`)
-	pingRegex := regexp.MustCompile(`!ping`)
-	stockRegex := regexp.MustCompile(`(?i)^!stock [a-zA-Z\.]+$`)
-	erRegex := regexp.MustCompile(`(?i)^!er [a-zA-Z]+$`)
-	wizdaddyRegex := regexp.MustCompile(`(?i)^!wizdaddy$`)
-	coinRegex := regexp.MustCompile(`(?i)^!coin [a-zA-Z]+$`)
 
 	return func(s *dg.Session, m *dg.MessageCreate) {
 		// TODO: refactor logger
@@ -34,27 +27,32 @@ func Commander() func(s *dg.Session, m *dg.MessageCreate) {
 			}
 
 			if pingRegex.MatchString(m.Content) {
-				go safelyDo(Ping, s, m, logger)
+				go safelyDo(ping, s, m, logger)
 				return
 			}
 
 			if stockRegex.MatchString(m.Content) {
-				go safelyDo(Stock, s, m, logger)
+				go safelyDo(stock, s, m, logger)
 				return
 			}
 
 			if erRegex.MatchString(m.Content) {
-				go safelyDo(Er, s, m, logger)
+				go safelyDo(er, s, m, logger)
 				return
 			}
 
 			if wizdaddyRegex.MatchString(m.Content) {
-				go safelyDo(Wizdaddy, s, m, logger)
+				go safelyDo(wizdaddy, s, m, logger)
 				return
 			}
 
 			if coinRegex.MatchString(m.Content) {
-				go safelyDo(Coin, s, m, logger)
+				go safelyDo(coin, s, m, logger)
+				return
+			}
+
+			if remindmeRegex.MatchString(m.Content) {
+				go safelyDo(remindme, s, m, logger)
 				return
 			}
 
