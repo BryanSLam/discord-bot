@@ -6,6 +6,8 @@ github.com/gorilla/websocket v1.4.0 h1:WDFjx/TMzVgy9VdMMQi2K2Emtwi2QcUQsztZ/zLaH
 github.com/gorilla/websocket v1.4.0/go.mod h1:E7qHFY5m1UJ88s3WnNqhKjPHQ0heANvMoAMk2YaljkQ=
 github.com/jonwho/go-iex v0.0.0-20180906173559-e93aa28b941f h1:zY5exDj1uPp5tFALtQqpjgXzYLRHYhlrYMgMMVhI9hI=
 github.com/jonwho/go-iex v0.0.0-20180906173559-e93aa28b941f/go.mod h1:JpsIAZLsycYIwHYAyix1hzli9oFwIXlkUhMrQrgl/0E=
+github.com/jonwho/go-iex v0.0.0 h1:x5UuLH6epiBETTPm25h5zTHQnVSQ9ZGkUTwvostbCAQ=
+github.com/jonwho/go-iex v0.0.0/go.mod h1:KnRdNLzh2zDUbPy890lwjaJfhxeYhWKQn12evD4/ehg=
 github.com/robfig/cron v0.0.0-20180505203441-b41be1df6967 h1:x7xEyJDP7Hv3LVgvWhzioQqbC/KtuUhTigKlH/8ehhE=
 github.com/robfig/cron v0.0.0-20180505203441-b41be1df6967/go.mod h1:JGuDeoQd7Z6yL4zQhZ3OPEVHB7fL6Ka6skscFHfmt2k=
 github.com/tkanos/gonfig v0.0.0-20180906171005-823c27c14873 h1:G41SIsjh238sQF6YiU6H42ClO9MFwrpvG28naSAktno=
