@@ -11,7 +11,7 @@ import (
 	dg "github.com/bwmarrin/discordgo"
 )
 
-func Coin(s *dg.Session, m *dg.MessageCreate) {
+func coin(s *dg.Session, m *dg.MessageCreate) {
 	slice := strings.Split(m.Content, " ")
 	ticker := strings.ToUpper(slice[1])
 	coinURL := config.GetConfig().CoinAPIURL + ticker + "&tsyms=USD"

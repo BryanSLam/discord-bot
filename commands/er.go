@@ -9,7 +9,7 @@ import (
 	iex "github.com/jonwho/go-iex"
 )
 
-func Er(s *dg.Session, m *dg.MessageCreate) {
+func er(s *dg.Session, m *dg.MessageCreate) {
 	logger := util.Logger{Session: s, ChannelID: config.GetConfig().BotLogChannelID}
 	slice := strings.Split(m.Content, " ")
 	ticker := slice[1]

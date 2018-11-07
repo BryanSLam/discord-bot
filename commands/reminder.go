@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	dg "github.com/bwmarrin/discordgo"
 	"github.com/go-redis/redis"
 )
 
@@ -16,6 +17,18 @@ type Reminder struct {
 	Client *redis.Client
 }
 
+var (
+	reminderClient Reminder
+)
+
+func init() {
+	// Initalize new reminder goroutine
+	reminderClient = NewReminder("")
+}
+
+// TODO: decide on pkg API. not sure if this stuff should be public or not
+//
+// where else will this be used?
 func NewReminder(url string) Reminder {
 	var (
 		storeurl string
@@ -63,7 +76,8 @@ func (r *Reminder) Add(message string, date string) error {
 		return err
 	}
 
-	// Might need to add a buffer for the duration that the redis entry exists so we have time to get the value and output reminder
+	// Might need to add a buffer for the duration that the redis entry exists so we have
+	// time to get the value and output reminder
 	timeUntil := time.Until(untilDate) + 1
 	err = r.Client.Set(date, sb.String(), timeUntil).Err()
 	if err != nil {
@@ -73,8 +87,8 @@ func (r *Reminder) Add(message string, date string) error {
 	return nil
 }
 
-// Get will run on a daily cron job to fetch the raw messages from the redis cache and send to the parser to be formatted before
-// being broadcasted.  The expected key is the current date
+// Get will run on a daily cron job to fetch the raw messages from the redis cache and send to the
+// parser to be formatted before being broadcasted. The expected key is the current date
 func (r *Reminder) Get(date string) ([]string, error) {
 	messages, err := r.Client.Get(date).Result()
 	if err != nil {
@@ -90,37 +104,50 @@ func (r *Reminder) Get(date string) ([]string, error) {
 	return output, nil
 }
 
-// TODO: figure out how to add logger here without creating a new discord session
+func remindme(s *dg.Session, m *dg.MessageCreate) {
+	messageArr := strings.Split(m.Content, "\"")
+	if len(messageArr) != 3 {
+		s.ChannelMessageSend(m.ChannelID, "Reminder messages must be surrounded by quotes \"{message}\" ")
+		return
+	}
 
-// TODO:LEFTOVER CODE FROM REMINDER
-// update it so it can be used like other commands
-// } else if action, _ := regexp.MatchString("(?i)^!remindme$", slice[0]); action {
-//   messageArr := strings.Split(m.Content, "\"")
-//   if len(messageArr) != 3 {
-//     s.ChannelMessageSend(m.ChannelID, "Reminder messages must be surrounded by quotes \"{message}\" ")
-//     return
-//   }
-//   // We store the person who sent the message as well as the channel id into the redis cache so we know where and who to contact later
-//   message := m.ChannelID + "~*" + m.Author.Mention() + ": " + messageArr[1]
-//   date := slice[len(slice)-1]
-//   match, _ := regexp.MatchString("(0?[1-9]|1[012])/(0?[1-9]|[12][0-9]|3[01])/(\\d\\d)", date)
-//   if match == false {
-//     s.ChannelMessageSend(m.ChannelID, "Invalid date given loser")
-//     return
-//   }
-//
-//   // Commenting out the date check for now, weird behavior where you get blocked for
-//   // Setting a reminder for the next day
-//
-//   // dateCheck, _ := time.Parse("01/02/06", date)
-//   // if time.Until(dateCheck) < 0 {
-//   // 	s.ChannelMessageSend(m.ChannelID, "Date has already passed ya fuck")
-//   // 	return
-//   // }
-//
-//   err := reminderClient.Add(message, date)
-//   if err != nil {
-//     s.ChannelMessageSend(m.ChannelID, err.Error())
-//     return
-//   }
-//   s.ChannelMessageSend(m.ChannelID, "Reminder Set!")
+	// We store the person who sent the message as well as the channel id into the redis cache
+	// so we know where and who to contact later
+	message := m.ChannelID + "~*" + m.Author.Mention() + ": " + messageArr[1]
+	slice := strings.Split(m.Content, " ")
+	date := slice[len(slice)-1]
+	if !remindmeDateRegex.MatchString(date) {
+		s.ChannelMessageSend(m.ChannelID, "Invalid date given loser")
+		return
+	}
+
+	// Commenting out the date check for now, weird behavior where you get blocked for
+	// Setting a reminder for the next day
+
+	// dateCheck, _ := time.Parse("01/02/06", date)
+	// if time.Until(dateCheck) < 0 {
+	// 	s.ChannelMessageSend(m.ChannelID, "Date has already passed ya fuck")
+	// 	return
+	// }
+
+	err := reminderClient.Add(message, date)
+	if err != nil {
+		s.ChannelMessageSend(m.ChannelID, err.Error())
+		return
+	}
+	s.ChannelMessageSend(m.ChannelID, "Reminder Set!")
+}
+
+// Function run during the daily reminder check
+func ReminderRoutine(s *dg.Session) error {
+	output, err := reminderClient.Get(time.Now().Format("01/02/06"))
+	if err != nil {
+		return err
+	}
+	for _, reminder := range output {
+		cacheEntry := strings.Split(reminder, "~*")
+		channel := cacheEntry[0]
+		s.ChannelMessageSend(channel, cacheEntry[1])
+	}
+	return nil
+}
