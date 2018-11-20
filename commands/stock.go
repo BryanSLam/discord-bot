@@ -43,6 +43,7 @@ func stock(s *dg.Session, m *dg.MessageCreate) {
 
 	if quote == nil {
 		logger.Trace(fmt.Sprintf("nil quote from ticker: %s", ticker))
+		return
 	}
 
 	message := util.FormatQuote(quote)
