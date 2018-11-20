@@ -2,7 +2,7 @@ package main
 
 import (
 	"flag"
-	"fmt"
+	"log"
 	"os"
 	"os/signal"
 	"syscall"
@@ -28,14 +28,17 @@ func init() {
 	if token == "" {
 		token = os.Getenv("BOT_TOKEN")
 	}
+
+	if token == "" {
+		log.Fatalln("discord token must be supplied")
+	}
 }
 
 func main() {
 	// Create a new Discord session using the provided bot token.
 	dg, err := discordgo.New("Bot " + token)
 	if err != nil {
-		fmt.Println("error creating Discord session,", err)
-		return
+		log.Fatalln("error creating Discord session,", err)
 	}
 
 	// Register handlers for discordgo
@@ -44,28 +47,27 @@ func main() {
 	// Open a websocket connection to Discord and begin listening.
 	err = dg.Open()
 	if err != nil {
-		fmt.Println("error opening connection,", err)
-		return
+		log.Fatalln("error opening connection,", err)
 	}
 
 	// 5 AM everyday Monday - Friday
 	go func() {
 		c := cron.New()
-		c.AddFunc("0 5 * * 1-5", func() {
-			fmt.Println("test")
+		c.AddFunc("@midnight", func() {
+			log.Println("cron running!")
 			// TODO: main starting to look messy again
 			//
 			// move behaviors into separate pkgs
 			err := commands.ReminderRoutine(dg)
 			if err != nil {
-				fmt.Println(err)
+				log.Println(err)
 			}
 		})
 		c.Start()
 	}()
 
 	// Wait here until CTRL-C or other term signal is received.
-	fmt.Println("Bot is now running.  Press CTRL-C to exit.")
+	log.Println("Bot is now running.  Press CTRL-C to exit.")
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
 	<-sc
