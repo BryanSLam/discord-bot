@@ -22,14 +22,11 @@ var (
 )
 
 func init() {
-	// Initalize new reminder goroutine
-	reminderClient = NewReminder("")
+	// Initalize new reminder
+	reminderClient = newReminder("")
 }
 
-// TODO: decide on pkg API. not sure if this stuff should be public or not
-//
-// where else will this be used?
-func NewReminder(url string) Reminder {
+func newReminder(url string) Reminder {
 	var (
 		storeurl string
 		client   *redis.Client
@@ -38,7 +35,6 @@ func NewReminder(url string) Reminder {
 	if url != "" {
 		storeurl = url
 	} else {
-		// Replace with the config from the charts PR
 		storeurl = "redis:6379"
 	}
 	client = redis.NewClient(&redis.Options{
